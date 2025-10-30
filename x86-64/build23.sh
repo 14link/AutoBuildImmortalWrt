@@ -58,10 +58,18 @@ PACKAGES="$PACKAGES luci-i18n-homeproxy-zh-cn"
 PACKAGES="$PACKAGES openssh-sftp-server"
 PACKAGES="$PACKAGES luci-i18n-samba4-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-smartdns-zh-cn"
+PACKAGES="$PACKAGES hysteria"
+PACKAGES="$PACKAGES luci-app-unblockneteasemusic"
+PACKAGES="$PACKAGES luci-i18n-usb-printer-zh-cn"
+
+PACKAGES="$PACKAGES luci-i18n-ddns-zh-cn"
+PACKAGES="$PACKAGES luci-i18n-qbittorrent-zh-cn"
+PACKAGES="$PACKAGES luci-i18n-upnp-zh-cn"
+
 PACKAGES="$PACKAGES luci-i18n-vsftpd-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-vlmcsd-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-wol-zh-cn"
-PACKAGES="$PACKAGES luci-i18n-nlbwmon-zh-cn"
+# PACKAGES="$PACKAGES luci-i18n-nlbwmon-zh-cn"
 # PACKAGES="$PACKAGES luci-i18n-zerotier-zh-cn"
 
 # 静态文件服务器dufs(推荐)
