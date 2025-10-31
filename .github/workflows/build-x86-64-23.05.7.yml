@@ -121,7 +121,6 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: immortalwrt_23.05.7_${{ env.FILE_DATE }}
-          path: ${{ env.FIRMWARE }}/bin/targets/x86/64
           path: |
             ${{ env.FIRMWARE }}/bin/targets/x86/64/*.vmdk
             ${{ env.FIRMWARE }}/bin/targets/x86/64/*.img.gz
