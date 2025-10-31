@@ -120,7 +120,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: immortalwrt${{ env.FILE_DATE }}
-          path: ${{ env.FIRMWARE }}/bin
+          path: ${{ env.FIRMWARE }}/bin/targets/x86/64
 
 
       - name: Create info
