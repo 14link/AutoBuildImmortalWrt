@@ -120,7 +120,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: immortalwrt${{ env.FILE_DATE }}
-          path: ${{ github.workspace }}/bin
+          path: AutoBuildImmortalWrt/bin
 
 
       - name: Create info
