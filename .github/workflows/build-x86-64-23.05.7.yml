@@ -118,7 +118,7 @@ jobs:
       - name : Upload artifact
         uses: actions/upload-artifact@master
         with:
-          name: immortalwrt${{ env.FILE_DATE }}
+          name: immortalwrt_23.05.7_${{ env.FILE_DATE }}
           path: ${{ env.FIRMWARE }}/bin/targets/x86/64
 
       - name: Create info
