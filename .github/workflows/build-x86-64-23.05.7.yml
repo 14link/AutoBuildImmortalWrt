@@ -164,7 +164,7 @@ jobs:
           name: ${{ env.FILE_TIME }}  「 immortalwrt-23.05.7 」
           allowUpdates: true
           tag: ${{ env.TAG_TIME }}
-          commit: main
+          commit: dev
           token: ${{ secrets.REPO_TOKEN }}
           body: |
             功能介绍：该版本luci为23.05，内核版本5.15，目前包含Passwall、SSR、Mosdns、Docker、iStore商店等基础插件，其他插件可以用iStore商店安装，满足普通用户使用了。
