@@ -140,11 +140,11 @@ jobs:
             echo -e "\n#### 不带docker" >> ${{ github.workspace }}/router-info.md
           fi
 
-      - name: Upload firmware directory
-        uses: actions/upload-artifact@main
-        with:
-          name: imm_firmware${{ env.FILE_DATE }}
-          path: ${{ env.FIRMWARE }}
+      # - name: Upload firmware directory
+        # uses: actions/upload-artifact@main
+        # with:
+          # name: imm_firmware${{ env.FILE_DATE }}
+          # path: ${{ env.FIRMWARE }}
 
       - name: Generate release tag
         id: tag
