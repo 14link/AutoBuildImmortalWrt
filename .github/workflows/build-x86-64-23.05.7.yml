@@ -164,7 +164,7 @@ jobs:
           allowUpdates: true
           tag: ${{ env.TAG_TIME }}
           commit: main
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.REPO_TOKEN }}
           body: |
             功能介绍：该版本luci为23.05，内核版本5.15，目前包含Passwall、SSR、Mosdns、Docker、iStore商店等基础插件，其他插件可以用iStore商店安装，满足普通用户使用了。
             [固件源码](https://github.com/immortalwrt/immortalwrt)
@@ -191,7 +191,7 @@ jobs:
           releases_keep_latest: 45
           delete_workflows: true
           workflows_keep_day: 45
-          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          gh_token: ${{ secrets.REPO_TOKEN }}
 
       - name: Remove old Releases
         uses: dev-drprasad/delete-older-releases@master
@@ -201,4 +201,15 @@ jobs:
           delete_expired_data: 25 # Optional parameters
           delete_tags: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+
+      - name: Remove old Releases
+        uses: dev-drprasad/delete-older-releases@master
+        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+        with:
+          keep_latest: 25
+          delete_expired_data: 25 # Optional parameters
+          delete_tags: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+  
