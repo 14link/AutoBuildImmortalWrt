@@ -40,16 +40,8 @@ on:
         description: "宽带密码 (若启用PPPoE)"
         required: false
 
-env:
-  UPLOAD_BIN_DIR: true
-  UPLOAD_FIRMWARE: true
-  UPLOAD_RELEASE: true
-  CACHE_BUILD: true
-  TZ: Asia/Shanghai
-
 jobs:
   build:
-    name: Build_Imm_23.05.7
     runs-on: ubuntu-22.04
 
     steps:
@@ -110,18 +102,6 @@ jobs:
               -e PPPOE_PASSWORD=${{ inputs.pppoe_password }} \
               immortalwrt/imagebuilder:x86-64-openwrt-23.05.7 /bin/bash /home/build/immortalwrt/build.sh
           done
-          echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
-          echo "FILE_TIME=$(date "+%Y年%m月%d日-%H点")" >> $GITHUB_ENV
-          echo "TAG_TIME=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
-          echo "FIRMWARE=$PWD" >> $GITHUB_ENV
-
-
-      - name : Upload artifact
-        uses: actions/upload-artifact@master
-        with:
-          name: immortalwrt${{ env.FILE_DATE }}
-          path: ${{ env.FIRMWARE }}/bin
-
 
       - name: Create info
         run: |
@@ -140,79 +120,16 @@ jobs:
             echo -e "\n#### 不带docker" >> ${{ github.workspace }}/router-info.md
           fi
 
-      # - name: Upload firmware directory
-        # uses: actions/upload-artifact@main
-        # with:
-          # name: imm_firmware${{ env.FILE_DATE }}
-          # path: ${{ env.FIRMWARE }}
 
-      - name: Generate release tag
-        id: tag
-        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-        run: |
-          echo "release_tag=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
-          touch release.txt
-          [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
-          [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
-          echo "status=success" >> $GITHUB_OUTPUT
-
-      - name: 发布至release
-        id: release
-        uses: ncipollo/release-action@v1.14.0
-        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      - name: Upload ImmortWrt as release assets
+        uses: softprops/action-gh-release@v2.2.1
         with:
-          name: ${{ env.FILE_TIME }}  「 immortalwrt-23.05.7 」
-          allowUpdates: true
-          tag: ${{ env.TAG_TIME }}
-          commit: dev
-          token: ${{ secrets.REPO_TOKEN }}
-          body: |
-            功能介绍：该版本luci为23.05，内核版本5.15，目前包含Passwall、SSR、Mosdns、Docker、iStore商店等基础插件，其他插件可以用iStore商店安装，满足普通用户使用了。
-            [固件源码](https://github.com/immortalwrt/immortalwrt)
-            由衷感谢所有为openwrt无私奉献的大佬们
-            📥 固件下载
-          artifacts: ${{ env.FIRMWARE }}/bin/targets/x86/64/*
-
-      # - name: Upload ImmortWrt as release assets
-        # uses: softprops/action-gh-release@v2.2.1
-        # with:
-          # tag_name: v${{ env.TAG_TIME }}
-          # body_path: ${{ github.workspace }}/router-info.md
-          # files: |
-            # ${{ github.workspace }}/bin/targets/x86/64/immortalwrt-23.05.7-x86-64-generic-squashfs-combined-efi.img.gz
-            # ${{ github.workspace }}/bin/targets/x86/64/immortalwrt-23.05.7-x86-64-generic-squashfs-combined-efi.vmdk
-          # token: ${{ secrets.GITHUB_TOKEN }}
-        # env:
-          # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # - name: Upload ImmortWrt as release assets
-        # uses: softprops/action-gh-release@v2.2.1
-        # with:
-          # tag_name: Autobuild-x86-64
-          # body_path: ${{ github.workspace }}/router-info.md
-          # files: |
-            # ${{ github.workspace }}/bin/targets/x86/64/immortalwrt-23.05.7-x86-64-generic-squashfs-combined-efi.img.gz
-            # ${{ github.workspace }}/bin/targets/x86/64/immortalwrt-23.05.7-x86-64-generic-squashfs-combined-efi.vmdk
-          # token: ${{ secrets.GITHUB_TOKEN }}
-        # env:
-          # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Delete releases and workflows runs
-        uses: ophub/delete-releases-workflows@main
-        with:
-          delete_releases: true
-          releases_keep_latest: 45
-          delete_workflows: true
-          workflows_keep_day: 45
-          gh_token: ${{ secrets.REPO_TOKEN }}
-
-      - name: Remove old Releases
-        uses: dev-drprasad/delete-older-releases@master
-        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-        with:
-          keep_latest: 25
-          delete_expired_data: 25 # Optional parameters
-          delete_tags: true
+          tag_name: Autobuild-x86-64
+          body_path: ${{ github.workspace }}/router-info.md
+          files: |
+            ${{ github.workspace }}/bin/targets/x86/64/immortalwrt-23.05.7-x86-64-generic-squashfs-combined-efi.img.gz
+            ${{ github.workspace }}/bin/targets/x86/64/immortalwrt-23.05.7-x86-64-generic-squashfs-combined-efi.vmdk
+          token: ${{ secrets.GITHUB_TOKEN }}
         env:
-          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
