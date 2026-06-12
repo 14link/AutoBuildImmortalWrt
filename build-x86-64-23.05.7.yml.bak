@@ -39,6 +39,8 @@ on:
       pppoe_password:
         description: "宽带密码 (若启用PPPoE)"
         required: false
+    schedule:
+      - cron: 0 9 * * 3
 
 env:
   UPLOAD_BIN_DIR: true
@@ -54,7 +56,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Set executable permissions
         run: chmod +x ${{ github.workspace }}/x86-64/build23.sh
@@ -135,7 +137,7 @@ jobs:
           fi
       - name: 发布至release
         id: release
-        uses: ncipollo/release-action@v1.14.0
+        uses: ncipollo/release-action@v1.21.0
         if: env.UPLOAD_RELEASE == 'true' && !cancelled()
         with:
           name: ${{ env.FILE_TIME }}  「 immortalwrt-23.05.7 」
@@ -151,7 +153,7 @@ jobs:
           artifacts: ${{ env.FIRMWARE }}/bin/targets/x86/64/*
 
       # - name: Upload ImmortWrt as release assets
-        # uses: softprops/action-gh-release@v2.2.1
+        # uses: softprops/action-gh-release@v3
         # with:
           # tag_name: v${{ env.TAG_TIME }}
           # body_path: ${{ github.workspace }}/router-info.md
@@ -163,7 +165,7 @@ jobs:
           # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # - name: Upload ImmortWrt as release assets
-        # uses: softprops/action-gh-release@v2.2.1
+        # uses: softprops/action-gh-release@v3
         # with:
           # tag_name: Autobuild-x86-64
           # body_path: ${{ github.workspace }}/router-info.md
