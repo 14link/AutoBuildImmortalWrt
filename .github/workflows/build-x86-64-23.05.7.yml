@@ -142,7 +142,7 @@ jobs:
             [固件源码](https://github.com/immortalwrt/immortalwrt)
             由衷感谢所有为openwrt无私奉献的大佬们
             📥 固件下载
-          artifacts: "${{ github.workspace }}/bin/targets/x86/64/*.vmdk,$${{ github.workspace }}/bin/targets/x86/64/*.img.gz"
+          artifacts: "${{ github.workspace }}/bin/targets/x86/64/*.vmdk,$${{ github.workspace }}/bin/targets/x86/64/*.img.gz,$${{ github.workspace }}/bin/targets/x86/64/*.qcow2"
           # artifacts: ${{ env.FIRMWARE }}/bin/targets/x86/64/*
 
       # # - name: Upload ImmortWrt as release assets
