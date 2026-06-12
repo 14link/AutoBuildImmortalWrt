@@ -1,0 +1,194 @@
+name: build-x86-64-immortalwrt-23.05.7
+
+on:
+  workflow_dispatch:
+    inputs:
+      custom_router_ip:
+        description: "请设置路由器的管理地址(仅对多网口路由器有效) 格式:192.168.x.1 或 10.x.x.1"
+        required: true
+        default: "192.168.0.235"
+      profile:
+        description: '请输入要编译固件大小 单位(MB)'
+        required: true
+        default: '1024'
+      enable_store:
+        description: "集成 store 商店"
+        required: false
+        type: boolean
+        default: true
+      include_docker:
+        description: |
+          是否编译 Docker 插件
+        required: true
+        default: 'yes'
+        type: choice
+        options:
+          - 'yes'
+          - 'no'
+      enable_pppoe:
+        description: "是否配置PPPoE拨号信息?"
+        required: true
+        default: 'no'
+        type: choice
+        options:
+        - 'yes'
+        - 'no'
+      pppoe_account:
+        description: "宽带账号 (若启用PPPoE)"
+        required: false
+      pppoe_password:
+        description: "宽带密码 (若启用PPPoE)"
+        required: false
+
+env:
+  UPLOAD_BIN_DIR: true
+  UPLOAD_FIRMWARE: true
+  UPLOAD_RELEASE: true
+  CACHE_BUILD: true
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    name: Build_Imm_23.05.7
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set executable permissions
+        run: chmod +x ${{ github.workspace }}/x86-64/build23.sh
+      
+      - name: Save Custom Router IP into OpenWrt files
+        run: |
+          mkdir -p "${{ github.workspace }}/custom"
+          echo "${{ github.event.inputs.custom_router_ip }}" > "${{ github.workspace }}/custom/custom_router_ip.txt"
+          echo "您设置的路由器管理地址是:${{ github.event.inputs.custom_router_ip }}"
+          # 后续步骤会将该文件映射到路由器/etc/config/custom_router_ip.txt 以便用于开机脚本99-custom.sh读取用户设置的ip
+      
+      
+      - name: Validate PPPoE Inputs
+        run: |
+          if [[ "${{ inputs.enable_pppoe }}" == "yes" ]]; then
+            if [[ -z "${{ inputs.pppoe_account }}" || -z "${{ inputs.pppoe_password }}" ]]; then
+              echo "Error: PPPoE account and password must be provided when PPPoE is enabled!"
+              exit 1
+            fi
+          fi
+      
+      - name: Enable Store integration
+        run: |
+          if [ "${{ github.event.inputs.enable_store }}" == "true" ]; then
+            echo 'CUSTOM_PACKAGES="$CUSTOM_PACKAGES luci-app-store"' >> shell/custom-packages.sh
+            echo "✅ 已追加 luci-app-store"
+          else
+            echo "❎ 未启用 luci-app-store"
+          fi
+      - name: Build ImmortalWrt-x86-64-efi
+        run: |
+          profiles="${{ github.event.inputs.profile }}"
+          include_docker="${{ github.event.inputs.include_docker }}"
+          
+          IFS=',' read -r -a profile_array <<< "$profiles"
+          
+          for profile in "${profile_array[@]}"; do
+            echo "Building for profile: $profile"
+            
+            docker run --rm -i \
+              --user root \
+              -v "${{ github.workspace }}/bin:/home/build/immortalwrt/bin" \
+              -v "${{ github.workspace }}/files:/home/build/immortalwrt/files" \
+              -v "${{ github.workspace }}/custom:/home/build/immortalwrt/files/etc/config" \
+              -v "${{ github.workspace }}/x86-64/imm-23.05.7.config:/home/build/immortalwrt/.config" \
+              -v "${{ github.workspace }}/shell:/home/build/immortalwrt/shell" \
+              -v "${{ github.workspace }}/x86-64/build23.sh:/home/build/immortalwrt/build.sh" \
+              -e PROFILE=$profile \
+              -e INCLUDE_DOCKER=$include_docker \
+              -e ENABLE_PPPOE=${{ inputs.enable_pppoe }} \
+              -e PPPOE_ACCOUNT=${{ inputs.pppoe_account }} \
+              -e PPPOE_PASSWORD=${{ inputs.pppoe_password }} \
+              immortalwrt/imagebuilder:x86-64-openwrt-23.05.7 /bin/bash /home/build/immortalwrt/build.sh
+          done
+          echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+          echo "FILE_TIME=$(date "+%Y年%m月%d日-%H点")" >> $GITHUB_ENV
+          echo "TAG_TIME=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+          echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+      - name : Upload artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: immortalwrt_23.05.7_${{ env.FILE_DATE }}
+          path: ${{ env.FIRMWARE }}/bin/targets/x86/64
+
+      - name: Create info
+        run: |
+          cat > ${{ github.workspace }}/router-info.md <<EOF
+          ## 📡 路由器后台信息
+          - 🏠 **后台地址**: ${{ github.event.inputs.custom_router_ip }}
+          - 👤 **用户名**: root
+          - 🔑 **密码**: 无
+          EOF
+          if [ "${{ github.event.inputs.include_docker }}" == "yes" ]; then
+            extra_content="#### 默认带docker"
+            echo -e "\n$extra_content" >> ${{ github.workspace }}/router-info.md
+          else
+            echo -e "\n#### 不带docker" >> ${{ github.workspace }}/router-info.md
+          fi
+      - name: 发布至release
+        id: release
+        uses: ncipollo/release-action@v1.14.0
+        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+        with:
+          name: ${{ env.FILE_TIME }}  「 immortalwrt-23.05.7 」
+          allowUpdates: true
+          tag: ${{ env.TAG_TIME }}
+          commit: dev
+          token: ${{ secrets.REPO_TOKEN }}
+          body: |
+            功能介绍：该版本luci为23.05，内核版本5.15，目前包含Passwall、SSR、Mosdns、Docker、iStore商店等基础插件，其他插件可以用iStore商店安装，满足普通用户使用了。
+            [固件源码](https://github.com/immortalwrt/immortalwrt)
+            由衷感谢所有为openwrt无私奉献的大佬们
+            📥 固件下载
+          artifacts: ${{ env.FIRMWARE }}/bin/targets/x86/64/*
+
+      # - name: Upload ImmortWrt as release assets
+        # uses: softprops/action-gh-release@v2.2.1
+        # with:
+          # tag_name: v${{ env.TAG_TIME }}
+          # body_path: ${{ github.workspace }}/router-info.md
+          # files: |
+            # ${{ github.workspace }}/bin/targets/x86/64/immortalwrt-23.05.7-x86-64-generic-squashfs-combined-efi.img.gz
+            # ${{ github.workspace }}/bin/targets/x86/64/immortalwrt-23.05.7-x86-64-generic-squashfs-combined-efi.vmdk
+          # token: ${{ secrets.GITHUB_TOKEN }}
+        # env:
+          # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Upload ImmortWrt as release assets
+        # uses: softprops/action-gh-release@v3
+        # with:
+          # tag_name: Autobuild-x86-64
+          # body_path: ${{ github.workspace }}/router-info.md
+          # files: |
+            # ${{ github.workspace }}/bin/targets/x86/64/immortalwrt-23.05.7-x86-64-generic-squashfs-combined-efi.img.gz
+            # ${{ github.workspace }}/bin/targets/x86/64/immortalwrt-23.05.7-x86-64-generic-squashfs-combined-efi.vmdk
+          # token: ${{ secrets.GITHUB_TOKEN }}
+        # env:
+          # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete releases and workflows runs
+        uses: ophub/delete-releases-workflows@main
+        with:
+          delete_releases: true
+          releases_keep_latest: 25
+          delete_workflows: true
+          workflows_keep_day: 25
+          gh_token: ${{ secrets.REPO_TOKEN }}
+
+      - name: Remove old Releases
+        uses: dev-drprasad/delete-older-releases@master
+        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+        with:
+          keep_latest: 5
+          delete_expired_data: 5 # Optional parameters
+          delete_tags: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}

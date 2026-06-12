@@ -154,6 +154,7 @@ jobs:
             ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.img.gz
             ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.vmdk
             ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.qcow2
+            ${{ github.workspace }}/bin/targets/x86/64/*squashfs-rootfs.img.gz
           token: ${{ secrets.GITHUB_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
