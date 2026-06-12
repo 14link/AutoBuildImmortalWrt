@@ -127,34 +127,34 @@ jobs:
           fi
 
 
-      - name: 发布至release
-        id: release
-        uses: ncipollo/release-action@v1.21.0
-        if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-        with:
-          name: ${{ env.FILE_TIME }}  「 immortalwrt-23.05.7 」
-          allowUpdates: true
-          tag: ${{ env.TAG_TIME }}
-          commit: dev
-          token: ${{ secrets.REPO_TOKEN }}
-          body: |
-            功能介绍：该版本luci为23.05，内核版本5.15，目前包含Passwall、SSR、Mosdns、Docker、iStore商店等基础插件，其他插件可以用iStore商店安装，满足普通用户使用了。
-            [固件源码](https://github.com/immortalwrt/immortalwrt)
-            由衷感谢所有为openwrt无私奉献的大佬们
-            📥 固件下载
-          artifacts: "${{ github.workspace }}/bin/targets/x86/64/*.vmdk,$${{ github.workspace }}/bin/targets/x86/64/*.img.gz,$${{ github.workspace }}/bin/targets/x86/64/*.qcow2"
+      # - name: 发布至release
+        # id: release
+        # uses: ncipollo/release-action@v1.21.0
+        # if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+        # with:
+          # name: ${{ env.FILE_TIME }}  「 immortalwrt-23.05.7 」
+          # allowUpdates: true
+          # tag: ${{ env.TAG_TIME }}
+          # commit: dev
+          # token: ${{ secrets.REPO_TOKEN }}
+          # body: |
+            # 功能介绍：该版本luci为23.05，内核版本5.15，目前包含Passwall、SSR、Mosdns、Docker、iStore商店等基础插件，其他插件可以用iStore商店安装，满足普通用户使用了。
+            # [固件源码](https://github.com/immortalwrt/immortalwrt)
+            # 由衷感谢所有为openwrt无私奉献的大佬们
+            # 📥 固件下载
+          # artifacts: "${{ github.workspace }}/bin/targets/x86/64/*.vmdk,$${{ github.workspace }}/bin/targets/x86/64/*.img.gz,$${{ github.workspace }}/bin/targets/x86/64/*.qcow2"
           # artifacts: ${{ env.FIRMWARE }}/bin/targets/x86/64/*
 
-      # # - name: Upload ImmortWrt as release assets
-        # uses: softprops/action-gh-release@v3
-        # with:
-          # tag_name: Autobuild-x86-64
-          # body_path: ${{ github.workspace }}/router-info.md
-          # files: |
-            # ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.img.gz
-          # token: ${{ secrets.GITHUB_TOKEN }}
-        # env:
-          # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload ImmortWrt as release assets
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: Autobuild-x86-64
+          body_path: ${{ github.workspace }}/router-info.md
+          files: |
+            ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.img.gz,${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.vmdk,${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.qcow2
+          token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
 
