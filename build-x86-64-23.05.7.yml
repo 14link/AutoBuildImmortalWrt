@@ -6,7 +6,7 @@ on:
       custom_router_ip:
         description: "请设置路由器的管理地址(仅对多网口路由器有效) 格式:192.168.x.1 或 10.x.x.1"
         required: true
-        default: "192.168.100.1"
+        default: "192.168.0.235"
       profile:
         description: '请输入要编译固件大小 单位(MB)'
         required: true
@@ -143,7 +143,7 @@ jobs:
           name: ${{ env.FILE_TIME }}  「 immortalwrt-23.05.7 」
           allowUpdates: true
           tag: ${{ env.TAG_TIME }}
-          commit: dev
+          commit: dev260610
           token: ${{ secrets.REPO_TOKEN }}
           body: |
             功能介绍：该版本luci为23.05，内核版本5.15，目前包含Passwall、SSR、Mosdns、Docker、iStore商店等基础插件，其他插件可以用iStore商店安装，满足普通用户使用了。

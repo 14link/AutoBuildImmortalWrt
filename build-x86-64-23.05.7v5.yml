@@ -39,6 +39,8 @@ on:
       pppoe_password:
         description: "宽带密码 (若启用PPPoE)"
         required: false
+    schedule:
+      - cron: 0 9 * * 3
 
 env:
   UPLOAD_BIN_DIR: true
@@ -54,7 +56,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v3
 
       - name: Set executable permissions
         run: chmod +x ${{ github.workspace }}/x86-64/build23.sh
@@ -117,8 +119,11 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: immortalwrt_23.05.7_${{ env.FILE_DATE }}
-          path: ${{ env.FIRMWARE }}/bin/targets/x86/64
-
+          path: |
+            ${{ env.FIRMWARE }}/bin/targets/x86/64/*.vmdk
+            ${{ env.FIRMWARE }}/bin/targets/x86/64/*.img.gz
+          # path: ${{ env.FIRMWARE }}/bin/targets/x86/64
+          
       - name: Create info
         run: |
           cat > ${{ github.workspace }}/router-info.md <<EOF
@@ -135,23 +140,24 @@ jobs:
           fi
       - name: 发布至release
         id: release
-        uses: ncipollo/release-action@v1.14.0
+        uses: ncipollo/release-action@v1.21.0
         if: env.UPLOAD_RELEASE == 'true' && !cancelled()
         with:
           name: ${{ env.FILE_TIME }}  「 immortalwrt-23.05.7 」
           allowUpdates: true
           tag: ${{ env.TAG_TIME }}
-          commit: dev
+          commit: dev260610
           token: ${{ secrets.REPO_TOKEN }}
           body: |
             功能介绍：该版本luci为23.05，内核版本5.15，目前包含Passwall、SSR、Mosdns、Docker、iStore商店等基础插件，其他插件可以用iStore商店安装，满足普通用户使用了。
             [固件源码](https://github.com/immortalwrt/immortalwrt)
             由衷感谢所有为openwrt无私奉献的大佬们
             📥 固件下载
-          artifacts: ${{ env.FIRMWARE }}/bin/targets/x86/64/*
+          artifacts: "${{ env.FIRMWARE }}/bin/targets/x86/64/*.vmdk,${{ env.FIRMWARE }}/bin/targets/x86/64/*.img.gz"
+          # artifacts: ${{ env.FIRMWARE }}/bin/targets/x86/64/*
 
       # - name: Upload ImmortWrt as release assets
-        # uses: softprops/action-gh-release@v2.2.1
+        # uses: softprops/action-gh-release@v3
         # with:
           # tag_name: v${{ env.TAG_TIME }}
           # body_path: ${{ github.workspace }}/router-info.md
@@ -187,8 +193,8 @@ jobs:
         uses: dev-drprasad/delete-older-releases@master
         if: env.UPLOAD_RELEASE == 'true' && !cancelled()
         with:
-          keep_latest: 5
-          delete_expired_data: 5 # Optional parameters
+          keep_latest: 25
+          delete_expired_data: 25 # Optional parameters
           delete_tags: true
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
