@@ -142,11 +142,11 @@ jobs:
             [固件源码](https://github.com/immortalwrt/immortalwrt)
             由衷感谢所有为openwrt无私奉献的大佬们
             📥 固件下载
-          artifacts: "${{ env.FIRMWARE }}/bin/targets/x86/64/*.vmdk,${{ env.FIRMWARE }}/bin/targets/x86/64/*.img.gz"
+          artifacts: "${{ github.workspace }}/bin/targets/x86/64/*.vmdk,$${{ github.workspace }}/bin/targets/x86/64/*.img.gz"
           # artifacts: ${{ env.FIRMWARE }}/bin/targets/x86/64/*
 
       # # - name: Upload ImmortWrt as release assets
-        # uses: softprops/action-gh-release@v2.2.1
+        # uses: softprops/action-gh-release@v3
         # with:
           # tag_name: Autobuild-x86-64
           # body_path: ${{ github.workspace }}/router-info.md
