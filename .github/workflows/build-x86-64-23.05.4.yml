@@ -147,7 +147,8 @@ jobs:
           tag_name: Autobuild-x86-64
           body_path: ${{ github.workspace }}/router-info.md
           files: |
-            ${{ github.workspace }}/bin/targets/x86/64/*squashfs-*.*
+            ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.*
+            ${{ github.workspace }}/bin/targets/x86/64/*squashfs-rootfs.img.gz
           
             # ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.img.gz
             # ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.vmdk
