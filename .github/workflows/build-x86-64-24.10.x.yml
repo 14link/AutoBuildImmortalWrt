@@ -56,6 +56,11 @@ on:
 permissions:
   contents: write
 
+env:
+  UPLOAD_RELEASE: true
+  TZ: Asia/Shanghai
+  # FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -94,6 +99,7 @@ jobs:
 
       - name: Build ImmortalWrt-x86-64-efi 24.10.x
         run: |
+          sudo timedatectl set-timezone "$TZ"       
           profile="${{ github.event.inputs.profile }}"
           include_docker="${{ github.event.inputs.include_docker }}"
           luci_version="${{ github.event.inputs.luci_version }}"
@@ -137,7 +143,7 @@ jobs:
       - name: Upload ImmortWrt as release assets
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: Autobuild-x86-64
+          tag_name: ${{ env.FILE_TIME }}_Autobuild-x86-64
           body_path: ${{ github.workspace }}/router-info.md
           files: |
             ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.img.gz
