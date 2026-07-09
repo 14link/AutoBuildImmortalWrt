@@ -148,7 +148,7 @@ jobs:
       - name: Upload ImmortWrt as release assets
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: ${{ env.FILE_TIME }} Autobuild-x86-64
+          tag_name: Autobuild-x86-64
           body_path: ${{ github.workspace }}/router-info.md
           files: |
             ${{ github.workspace }}/bin/targets/x86/64/*squashfs-*.*
