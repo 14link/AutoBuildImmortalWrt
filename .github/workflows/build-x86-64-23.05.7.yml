@@ -41,6 +41,7 @@ on:
         required: false
 env:
   UPLOAD_RELEASE: true
+  TZ: Asia/Shanghai
   # FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   
 jobs:
@@ -82,6 +83,7 @@ jobs:
 
       - name: Build ImmortalWrt-x86-64-efi
         run: |
+          sudo timedatectl set-timezone "$TZ"       
           profiles="${{ github.event.inputs.profile }}"
           include_docker="${{ github.event.inputs.include_docker }}"
           
