@@ -150,3 +150,22 @@ jobs:
           token: ${{ secrets.REPO_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
+          
+            # ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.*
+            # ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.img.gz
+            # ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.vmdk
+            # ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.qcow2
+            # ${{ github.workspace }}/bin/targets/x86/64/*squashfs-rootfs.img.gz
+
+      - name: Delete releases and workflows runs
+        uses: ophub/delete-releases-workflows@main
+        with:
+          delete_releases: true
+          releases_keep_latest: 3
+          delete_workflows: true
+          workflows_keep_day: 1
+          gh_token: ${{ secrets.REPO_TOKEN }}
+  
+  
+  
+  
