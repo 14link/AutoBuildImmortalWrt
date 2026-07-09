@@ -146,7 +146,7 @@ jobs:
           tag_name: ${{ env.FILE_TIME }}_Autobuild-x86-64
           body_path: ${{ github.workspace }}/router-info.md
           files: |
-            ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.img.gz
+            ${{ github.workspace }}/bin/targets/x86/64/*squashfs*.*
           token: ${{ secrets.REPO_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
