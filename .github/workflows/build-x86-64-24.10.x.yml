@@ -153,6 +153,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
           
+          # tag_name: ${{ env.FILE_TIME }}_Autobuild-x86-64
             # ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.*
             # ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.img.gz
             # ${{ github.workspace }}/bin/targets/x86/64/*squashfs-combined-efi.vmdk
@@ -163,7 +164,7 @@ jobs:
         uses: ophub/delete-releases-workflows@main
         with:
           delete_releases: true
-          releases_keep_latest: 3
+          releases_keep_latest: 9
           delete_workflows: true
           workflows_keep_day: 1
           gh_token: ${{ secrets.REPO_TOKEN }}
